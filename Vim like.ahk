@@ -1,52 +1,5 @@
 ﻿#Requires AutoHotkey v2.0
 
-/********************************************************************************************
-CAPSLOCK DOBLE SHIFT
-; Presionar dos veces Shift rápidamente → Activa o desactiva CapsLock // Deshabilitado
-Presionar dos veces CapsLock rápidamente -> tecla Escape
-
-NAVEGACIÓN BÁSICA
-CapsLock + h → Mover cursor a la izquierda (equiv. Vim: h)
-CapsLock + j → Mover cursor hacia abajo (equiv. Vim: j)
-CapsLock + k → Mover cursor hacia arriba (equiv. Vim: k)
-CapsLock + l → Mover cursor a la derecha (equiv. Vim: l)
-CapsLock + w → Mover al inicio de la siguiente palabra (equiv. Vim: w)
-CapsLock + b → Mover al inicio de la palabra anterior (equiv. Vim: b)
-CapsLock + e → Mover al final de la palabra actual (equiv. Vim: e)
-CapsLock + 0 → Ir al inicio de línea (equiv. Vim: 0)
-CapsLock + 4 → Ir al final de línea (equiv. Vim: $)
-CapsLock + 6 → Ir al primer carácter no blanco (equiv. Vim: ^)
-CapsLock + g → Ir al final del documento (equiv. Vim: G)
-CapsLock + t → Ir al inicio del documento (equiv. Vim: gg)
-
-REPETICIÓN
-CapsLock + . → Repetir último comando (equiv. Vim: .) 
-
-ELIMINACIÓN Y COPIADO
-CapsLock + d + d → Eliminar línea completa (equiv. Vim: dd)
-CapsLock + d + w → Eliminar palabra a la derecha (equiv. Vim: dw)
-CapsLock + d + i + w → Eliminar palabra interna sin espacios (equiv. Vim: diw)
-CapsLock + x → Retroceso o borrar carácter (equiv. Vim: x o dx)
-
-COPIADO Y PEGADO
-CapsLock + y + y → Copiar línea completa (equiv. Vim: yy)
-CapsLock + y + w → Copiar palabra (equiv. Vim: yw)
-CapsLock + p → Pegar desde el portapapeles (equiv. Vim: p)
-
-MODO VISUAL
-CapsLock + v → Activar o desactivar modo visual (equiv. Vim: v)
-Luego usar h/j/k/l para expandir la selección
-
-DESHACER
-CapsLock + u → Deshacer última acción (equiv. Vim: u)
-
-SCROLLING
-CapsLock + ´ → Scroll arriba unas 15 líneas (equiv. Vim: Ctrl + u)
-CapsLock + { → Scroll abajo unas 15 líneas (equiv. Vim: Ctrl + d)
-
-*********************************************************************************************/
-
-
 SetCapsLockState("AlwaysOff")
 SendMode("Input")
 
