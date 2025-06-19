@@ -27,7 +27,8 @@ CapsLock + . → Repeat last command (Vim: .)
 CapsLock + d d → Delete entire line (Vim: dd)  
 CapsLock + d w → Delete word to the right (Vim: dw)  
 CapsLock + d i w → Delete inner word without spaces (Vim: diw)  
-CapsLock + x → Remove character before the cursor Backspace (Vim: X)
+CapsLock + d x → Remove character before the cursor Backspace (Vim: dx)
+CapsLock + x → Remove character after the cursor Delete (Vim: x)
 
 ## COPY AND PASTE COMMANDS
 

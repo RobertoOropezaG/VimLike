@@ -345,9 +345,9 @@ DoCommand(command, preserveCommand := false) {
             Sleep(SHORT)
             Send("{Del}")
         case "dx":
-            Send("{Del}")
-        case "x":
             Send("{Backspace}")
+        case "x":
+            Send("{Del}")
         case "yw":
             Send("^+{Right}")
             Sleep(SHORT)
