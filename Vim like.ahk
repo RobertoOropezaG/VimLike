@@ -4,15 +4,14 @@
 SetCapsLockState("AlwaysOff")
 SendMode("Input")
 
-global AUTOSWITCH := 800    ; Turn off visual mode automatically
-global SHORT := 50      ; Wait so two events don't collapse, eg. send home and end
-global WAIT := 500    ; Wait for user input, eg. press vw
-global SCROLL := 15     ; Scroll lines size
-global SCROLL_CONTEXT := 15      ; Leave this quantity of extra lines down
+global SHORT := 30      ; Wait so two events don't collapse, eg. send home and end
+global WAIT := 600    ; Wait for user next character input, eg. press d WAIT 3 WAIT w
+global DOUBLE := 300    ; Wait for double press of caps lock
 
 global currentCommand := ""
 global lastCommand := ""
 global currentMode := ""
+global currentNumber := ""
 
 ; ====== Double shift key to toggle caps lock ========
 /* Turns out I tend to double press shift...
@@ -64,17 +63,36 @@ CheckDoubleCaps() {
     }
 }
 
+; === Number management for repetition
+
+CapsLock & 2:: HandleNumber("2")
+CapsLock & 3:: HandleNumber("3")
+CapsLock & 4:: HandleNumber("4")
+CapsLock & 5:: HandleNumber("5")
+CapsLock & 6:: HandleNumber("6")
+CapsLock & 7:: HandleNumber("7")
+CapsLock & 8:: HandleNumber("8")
+
+; uno dos tres cuatro cinco
+HandleNumber(number) {
+    global currentNumber
+    currentNumber := number
+    SetTimer(ClearNumber, -WAIT)
+    SetTimer(ClearCommand, -WAIT)
+    ResetVisualModeTimer()
+}
+
+ClearNumber(*) {
+    global currentNumber
+    currentNumber := ""
+}
 ; === Navigation =====
 
 CapsLock & 0::HandleKey("0")
-CapsLock & 4::HandleKey("4")
-CapsLock & 6::HandleKey("6")
+CapsLock & 9::HandleKey("9")
 
 CapsLock & e::HandleKey("e")
-
 CapsLock & g::HandleKey("g")
-
-; Maps t to start of document
 CapsLock & t::HandleKey("t")
 
 ; === Movement ===
@@ -84,7 +102,6 @@ CapsLock & k:: HandleKey("k")
 CapsLock & l:: HandleKey("l")
 CapsLock & w:: HandleKey("w")
 CapsLock & b:: HandleKey("b")
-
 
 CapsLock & SC01A::HandleKey("´") ; Actually "´" character
 CapsLock & {::HandleKey("{")
@@ -110,7 +127,7 @@ DoSetVisualMode(newMode) {
 }
 
 ResetVisualModeTimer() {
-    SetTimer(EndVisualMode, -AUTOSWITCH) ; restart timer for 500ms
+    SetTimer(EndVisualMode, -WAIT) ; restart timer for 500ms
 }
 
 
@@ -124,7 +141,7 @@ CapsLock & d::{
         SetTimer(ClearCommand, -WAIT)
     }
 }
-{}
+
 CapsLock & y::{
     global currentCommand, lastCommand
     if currentCommand = "y" {
@@ -181,14 +198,17 @@ CapsLock & .:: {
     }
 }
 
-; === i commands after d ===
+; === i commands after d or y ===
 CapsLock & i:: {
     global currentCommand
     if currentCommand = "d" {
         currentCommand := "di"
-        SetTimer(ClearCommand, -AUTOSWITCH)
+        SetTimer(ClearCommand, -WAIT)
+    } else if currentCommand = "y" {
+        currentCommand := "yi"
+        SetTimer(ClearCommand, -WAIT)
     }
-}{}
+}
 
 ; === Word motion with operators ===
 HandleWord(dir) {
@@ -199,6 +219,8 @@ HandleWord(dir) {
         dir = "{Right}" ? DoCommand("yw") : DoCommand("yb")
     } else if currentCommand = "di" && dir = "{Right}" { ; Simulate 'diw' = delete inner word
         DoCommand("diw")
+    } else if currentCommand = "yi" && dir = "{Right}" {
+        DoCommand("yiw")
     } else if currentMode = "visual" {
         Send("+^" dir)
         ResetVisualModeTimer()
@@ -207,7 +229,7 @@ HandleWord(dir) {
     }
 }
 
-; === Movement with posible visual selection ===
+; === Movement with posible command or visual state ===
 DoMovement(key, skipDelete := false) {
     global currentCommand, currentMode
     if currentCommand = "v" || currentMode = "visual" {
@@ -241,57 +263,61 @@ DoMovement(key, skipDelete := false) {
 }
 
 HandleKey(key) {
-    switch key {
-        case "0": ; Map 0 to beginning of line
-            DoMovement("{Home}", true)
-            DoMovement("{Home}")
-        case "4": ; Map 4 to End (end of line) // it's $ in vim
-            DoMovement("{End}")
-        case "6": ; Map 6 to move cursor to first non-whitespace char // It's ^ in vim
-            DoMovement("{Home}{Home}", true)
-            DoMovement("^{Right}")
-        case "e": ; Map e to end of word
-            HandleWord("{Right}")
-            DoMovement("{Left}")
-        case "g": ; Map g to finish of document
-            DoMovement("^{End}")
-        case "t": ; Map t to start of document
-            DoMovement("^{Home}")
-        case "h": ; Map h to left
-            DoMovement("{Left}")
-        case "j": ; Map j to down
-            DoMovement("{Down}")
-        case "k": ; Map k to up
-            DoMovement("{Up}")
-        case "l": ; Map l to right
-            DoMovement("{Right}")
-        case "w": ; Map w to next word
-            HandleWord("{Right}")
-        case "b": ; Map b to previous word
-            HandleWord("{Left}")
-        case "´": ; Map  to some lines up, I'm using * instead because .ahk have some issues with that character
-            {
-                global currentMode
-                if currentMode = "visual" {
-                    Send("+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Down}+{Down}+{Down}+{Down}+{Down}")
-                } else {
-                    Send("{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Down}{Down}{Down}{Down}{Down}")
+    global currentNumber, currentCommand
+    SetTimer(ClearCommand, 0)
+    repeatCount := currentNumber ? Number(currentNumber) : 1
+    loop repeatCount {
+        switch key {
+            case "0": ; Map 0 to beginning of line
+                DoMovement("{Home}", true)
+                DoMovement("{Home}")
+            case "9": ; Map 9 to End (end of line) // it's $ in vim
+                DoMovement("{End}")
+            case "e": ; Map e to end of word
+                HandleWord("{Right}")
+                DoMovement("{Left}")
+            case "g": ; Map g to finish of document
+                DoMovement("^{End}")
+            case "t": ; Map t to start of document
+                DoMovement("^{Home}")
+            case "h": ; Map h to left
+                DoMovement("{Left}")
+            case "j": ; Map j to down
+                DoMovement("{Down}")
+            case "k": ; Map k to up
+                DoMovement("{Up}")
+            case "l": ; Map l to right
+                DoMovement("{Right}")
+            case "w": ; Map w to next word
+                HandleWord("{Right}")
+            case "b": ; Map b to previous word
+                HandleWord("{Left}")
+            case "´": ; Map  to some lines up, I'm using * instead because .ahk have some issues with that character
+                {
+                    global currentMode
+                    if currentMode = "visual" {
+                        Send("+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Down}+{Down}+{Down}+{Down}+{Down}")
+                    } else {
+                        Send("{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Down}{Down}{Down}{Down}{Down}")
+                    }
+                    Sleep(50)
+                    return
                 }
-                Sleep(50)
-                return
-            }
-        case "{": ; { Moves some lines up
-            {
-                global currentMode
-                if currentMode = "visual" {
-                  Send("+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Up}+{Up}+{Up}+{Up}+{Up}")
-                }else{
-                  Send("{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Up}{Up}{Up}{Up}{Up}")
+            case "{": ; { Moves some lines up
+                {
+                    global currentMode
+                    if currentMode = "visual" {
+                      Send("+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Up}+{Up}+{Up}+{Up}+{Up}")
+                    }else{
+                      Send("{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Up}{Up}{Up}{Up}{Up}")
+                    }
+                    Sleep(50)
+                    return
                 }
-                Sleep(50)
-                return
-            }
+        }
     }
+    currentCommand := ""
+    currentNumber := ""
 }
 
 ClearCommand(*) {
@@ -335,15 +361,18 @@ DoCommand(command, preserveCommand := false) {
             Sleep(SHORT)
             Send("^c")
             Send("{Home}{End}")
+        case "yiw":
+            Send("^{Left}")
+            Sleep(SHORT)
+            Send("^+{Right}")
+            Sleep(SHORT)
+            Send("^c")
         case "p":
             Send("^v")
         case "u":
             Send("^z")
     }
-    if !preserveCommand {
-        lastCommand := command
-        currentCommand := ""
-    }
+    lastCommand := command
 }
 
 ; Block all CapsLock combinations not otherwise handled

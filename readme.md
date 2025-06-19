@@ -8,12 +8,13 @@ CapsLock + h → Move cursor left (Vim: h)
 CapsLock + j → Move cursor down (Vim: j)  
 CapsLock + k → Move cursor up (Vim: k)  
 CapsLock + l → Move cursor right (Vim: l)  
+
 CapsLock + w → Move to start of next word (Vim: w)  
 CapsLock + b → Move to start of previous word (Vim: b)  
 CapsLock + e → Move to end of current word (Vim: e)  
+
 CapsLock + 0 → Go to beginning of line (Vim: 0)  
-CapsLock + 4 → Go to end of line (Vim: $)  
-CapsLock + 6 → Go to first non-whitespace character (Vim: ^)  
+CapsLock + 9 → Go to end of line (Vim: $)  
 CapsLock + g → Go to end of document (Vim: G)  
 CapsLock + t → Go to start of document (Vim: gg)
 
@@ -21,17 +22,18 @@ CapsLock + t → Go to start of document (Vim: gg)
 
 CapsLock + . → Repeat last command (Vim: .)
 
-## DELETION
+## DELETION COMMANDS
 
 CapsLock + d d → Delete entire line (Vim: dd)  
 CapsLock + d w → Delete word to the right (Vim: dw)  
 CapsLock + d i w → Delete inner word without spaces (Vim: diw)  
 CapsLock + x → Remove character before the cursor Backspace (Vim: X)
 
-## COPY AND PASTE
+## COPY AND PASTE COMMANDS
 
 CapsLock + y y → Copy entire line (Vim: yy)  
 CapsLock + y w → Copy word (Vim: yw)  
+CapsLock + y i w → Copy inner word (Vim: yiw)  
 CapsLock + p → Paste from clipboard (Vim: p)
 
 ## VISUAL MODE
@@ -47,6 +49,11 @@ CapsLock + u → Undo last action Ctrl + Z (Vim: u)
 
 CapsLock + ´ → Scroll up ~15 lines (Vim: Ctrl + u)  
 CapsLock + { → Scroll down ~15 lines (Vim: Ctrl + d)
+
+## REPEAT
+
+NUMBER + movement → repeat movement NUMBER times between 2 and 8, eg. 3w 5j 8b
+COMMAND + NUMBER + movement → repeat command NUMBER times between 2 and 8, eg. d3w y5b
 
 ## NOTES:
 
