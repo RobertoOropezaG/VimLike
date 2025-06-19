@@ -66,68 +66,28 @@ CheckDoubleCaps() {
 
 ; === Navigation =====
 
-; Map 0 to beginning of line
-CapsLock & 0::{
-    DoMovement("{Home}", true)
-    DoMovement("{Home}")
-}
+CapsLock & 0::HandleKey("0")
+CapsLock & 4::HandleKey("4")
+CapsLock & 6::HandleKey("6")
 
-; Map 4 to End (end of line)   // it's $ in vim
-CapsLock & 4::DoMovement("{End}")
+CapsLock & e::HandleKey("e")
 
-; Map 6 to move cursor to first non-whitespace char // It's ^ in vim
-CapsLock & 6::{ 
-    DoMovement("{Home}{Home}", true)
-    DoMovement("^{Right}")
-}
-
-; Maps e to move cursor to end of current word
-CapsLock & e::{ 
-    HandleWord("{Right}")
-    DoMovement("{Left}") 
-}
-
-; Maps g to go to finish of document
-CapsLock & g:: {
-    DoMovement("^{End}")
-}
+CapsLock & g::HandleKey("g")
 
 ; Maps t to start of document
-CapsLock & t:: {
-    DoMovement("^{Home}")
-}
+CapsLock & t::HandleKey("t")
 
 ; === Movement ===
-CapsLock & h:: DoMovement("{Left}")
-CapsLock & j:: DoMovement("{Down}")
-CapsLock & k:: DoMovement("{Up}")
-CapsLock & l:: DoMovement("{Right}")
-CapsLock & w:: HandleWord("{Right}")
-CapsLock & b:: HandleWord("{Left}")
+CapsLock & h:: HandleKey("h")
+CapsLock & j:: HandleKey("j")
+CapsLock & k:: HandleKey("k")
+CapsLock & l:: HandleKey("l")
+CapsLock & w:: HandleKey("w")
+CapsLock & b:: HandleKey("b")
 
 
-CapsLock & SC01A:: { 
-    ; ´ Moves some lines up
-    global currenMode
-    if currentMode = "visual" {
-        Send("+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Down}+{Down}+{Down}+{Down}+{Down}")    
-    } else {
-        Send("{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Down}{Down}{Down}{Down}{Down}")
-    }
-    Sleep(50)
-    return
-}
-CapsLock & {:: {
-    ; { Moves some lines up  //}}
-    global currentMode
-    if currentMode = "visual" {
-        Send("+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Up}+{Up}+{Up}+{Up}+{Up}")
-    }else{
-        Send("{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Up}{Up}{Up}{Up}{Up}")
-    }
-    Sleep(50)
-    return    
-}
+CapsLock & SC01A::HandleKey("´") ; Actually "´" character
+CapsLock & {::HandleKey("{")
 
 ; === Visual Mode Toggle ===
 EndVisualMode(*) {
@@ -277,6 +237,60 @@ DoMovement(key, skipDelete := false) {
     }
     if currentMode {
         ResetVisualModeTimer()
+    }
+}
+
+HandleKey(key) {
+    switch key {
+        case "0": ; Map 0 to beginning of line
+            DoMovement("{Home}", true)
+            DoMovement("{Home}")
+        case "4": ; Map 4 to End (end of line) // it's $ in vim
+            DoMovement("{End}")
+        case "6": ; Map 6 to move cursor to first non-whitespace char // It's ^ in vim
+            DoMovement("{Home}{Home}", true)
+            DoMovement("^{Right}")
+        case "e": ; Map e to end of word
+            HandleWord("{Right}")
+            DoMovement("{Left}")
+        case "g": ; Map g to finish of document
+            DoMovement("^{End}")
+        case "t": ; Map t to start of document
+            DoMovement("^{Home}")
+        case "h": ; Map h to left
+            DoMovement("{Left}")
+        case "j": ; Map j to down
+            DoMovement("{Down}")
+        case "k": ; Map k to up
+            DoMovement("{Up}")
+        case "l": ; Map l to right
+            DoMovement("{Right}")
+        case "w": ; Map w to next word
+            HandleWord("{Right}")
+        case "b": ; Map b to previous word
+            HandleWord("{Left}")
+        case "´": ; Map  to some lines up, I'm using * instead because .ahk have some issues with that character
+            {
+                global currentMode
+                if currentMode = "visual" {
+                    Send("+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Up}+{Down}+{Down}+{Down}+{Down}+{Down}")
+                } else {
+                    Send("{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Down}{Down}{Down}{Down}{Down}")
+                }
+                Sleep(50)
+                return
+            }
+        case "{": ; { Moves some lines up
+            {
+                global currentMode
+                if currentMode = "visual" {
+                  Send("+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Down}+{Up}+{Up}+{Up}+{Up}+{Up}")
+                }else{
+                  Send("{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Up}{Up}{Up}{Up}{Up}")
+                }
+                Sleep(50)
+                return
+            }
     }
 }
 
