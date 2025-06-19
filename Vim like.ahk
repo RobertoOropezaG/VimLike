@@ -1,4 +1,5 @@
 ﻿#Requires AutoHotkey v2.0
+#SingleInstance
 
 SetCapsLockState("AlwaysOff")
 SendMode("Input")
@@ -42,7 +43,8 @@ CheckDoubleShift() {
     } else {
         lastShiftTime := now
     }
-} */
+}
+*/
 
 ; ==== Double Caps Lock maps to escape! =======
 global lastCapsTime := 0
@@ -65,7 +67,10 @@ CheckDoubleCaps() {
 ; === Navigation =====
 
 ; Map 0 to beginning of line
-CapsLock & 0::DoMovement("{Home}{Home}")
+CapsLock & 0::{
+    DoMovement("{Home}", true)
+    DoMovement("{Home}")
+}
 
 ; Map 4 to End (end of line)   // it's $ in vim
 CapsLock & 4::DoMovement("{End}")
@@ -110,10 +115,7 @@ CapsLock & SC01A:: {
         Send("{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Down}{Down}{Down}{Down}{Down}")
     }
     Sleep(50)
-    /*Loop SCROLL + SCROLL_CONTEXT
-        DoMovement("{Up}")
-    Loop SCROLL_CONTEXT
-        DoMovement("{Down}")*/
+    return
 }
 CapsLock & {:: {
     ; { Moves some lines up  //}}
@@ -125,10 +127,6 @@ CapsLock & {:: {
     }
     Sleep(50)
     return    
-    /*Loop SCROLL + SCROLL_CONTEXT
-        DoMovement("{Down}")
-    Loop SCROLL_CONTEXT
-        DoMovement("{Up}")*/
 }
 
 ; === Visual Mode Toggle ===
@@ -160,11 +158,7 @@ ResetVisualModeTimer() {
 CapsLock & d::{
     global currentCommand, lastCommand
     if currentCommand = "d" {
-        Send("{Home}+{End}")
-        Sleep(SHORT)
-        Send("{Del}")
-        lastCommand := "dd"
-        currentCommand := ""
+        DoCommand("dd")
     } else {
         currentCommand := "d"
         SetTimer(ClearCommand, -WAIT)
@@ -174,38 +168,27 @@ CapsLock & d::{
 CapsLock & y::{
     global currentCommand, lastCommand
     if currentCommand = "y" {
-        Send("{Home}+{End}")
-        Sleep(SHORT)
-        Send("^c")
-        lastCommand := "yy"
-        currentCommand := ""
+        DoCommand("yy")
     } else {
         currentCommand := "y"
         SetTimer(ClearCommand, -WAIT)
     }
 }
-{}
+
 ; ==== Single commands
 
 CapsLock & x::{ ; Backspace or delete
     global currentCommand, lastCommand
     if currentCommand = "d" {
-        Send("{Del}")
-        lastCommand := "dx"
-        currentCommand := ""
+        DoCommand("dx")
     } else {
-        Send("{Backspace}")
-        lastCommand := "x"
+        DoCommand("x")
     }
 }
 
-CapsLock & p:: { ; Paste
-    global lastCommand
-    Send("^v")
-    lastCommand := "p"
-}
+CapsLock & p:: DoCommand("p")  ; Paste
 
-CapsLock & u:: Send("^z")  ; Undo
+CapsLock & u:: DoCommand("u")  ; Undo
 
 
 ; === Repeat last command ==========
@@ -214,25 +197,27 @@ CapsLock & .:: {
     global lastCommand
     switch lastCommand {
         case "dd":
-            Send("{Home}+{End}")
-            Sleep(SHORT)
-            Send("{Del}")
+            DoCommand("dd", true)
         case "dw":
-            DoCommand("dw")
-        case "db":
-            DoCommand("db")
-        case "yy":
-            Send("{Home}+{End}")
-            Sleep(SHORT)
-            Send("^c")
-        case "p":
-            Send("^v")
-        case "dx":
-            Send("{Del}")
-        case "x":
-            Send("{Backspace}")
+            DoCommand("dw", true)
         case "diw":
-            Send("^{Left}^+{Right}{Del}")
+            DoCommand("diw", true)
+        case "db":
+            DoCommand("db", true)
+        case "dx":
+            DoCommand("dx", true)
+        case "x":
+            DoCommand("x", true)
+        case "yy":
+            DoCommand("yy", true)
+        case "yw":
+            DoCommand("yw", true)
+        case "yb":
+            DoCommand("yb", true)
+        case "p":
+            DoCommand("p", true)
+        case "u":
+            DoCommand("u", true)
     }
 }
 
@@ -249,19 +234,11 @@ CapsLock & i:: {
 HandleWord(dir) {
     global currentCommand, lastCommand, currentMode
     if currentCommand = "d" {
-        DoCommand(dir = "{Right}" ? "dw" : "db")
-        lastCommand := dir = "{Right}" ? "dw" : "db"
-        currentCommand := ""
+        dir = "{Right}" ? DoCommand("dw") : DoCommand("db")
     } else if currentCommand = "y" {
-        Send("^+" dir)
-        Sleep(SHORT)
-        Send("^c")
-        lastCommand := "yw"
-        currentCommand := ""
+        dir = "{Right}" ? DoCommand("yw") : DoCommand("yb")
     } else if currentCommand = "di" && dir = "{Right}" { ; Simulate 'diw' = delete inner word
-        Send("^{Left}^+{Right}{Del}")
-        lastCommand := "diw"
-        currentCommand := ""
+        DoCommand("diw")
     } else if currentMode = "visual" {
         Send("+^" dir)
         ResetVisualModeTimer()
@@ -270,7 +247,7 @@ HandleWord(dir) {
     }
 }
 
-; === Movement with visual selection ===
+; === Movement with posible visual selection ===
 DoMovement(key, skipDelete := false) {
     global currentCommand, currentMode
     if currentCommand = "v" || currentMode = "visual" {
@@ -280,11 +257,19 @@ DoMovement(key, skipDelete := false) {
             Send("{Backspace}")
             lastCommand := "x"
         } else if key = "{Right}" {
-            Send("{Delete}")
-            lastCommand := "dx"
+            DoCommand("dx")
         } else if key = "{End}" || key = "{Home}" || key = "^{End}" || key = "^{Home}"
                 || key = "{Down}" || key = "{Up}"{
-            Send("+" key "{Delete}")
+            Send("+" key )
+            Sleep(SHORT)
+            Send("{Delete}")
+            lastCommand := ""
+        }
+    } else if currentCommand = "d" && skipDelete {
+        if key = "{End}" || key = "{Home}" || key = "^{End}" || key = "^{Home}"
+                         || key = "{Down}" || key = "{Up}"{
+            Send("+" key )
+            Sleep(SHORT)
             lastCommand := ""
         }
     } else {
@@ -300,15 +285,50 @@ ClearCommand(*) {
     currentCommand := ""
 }
 
-DoCommand(command) {
-    if command = "dw" {
-        Send("^+{Right}")
-        Sleep(SHORT)
-        Send("{Del}")
-    }else if command = "db" {
-        Send("^+{Left}")
-        Sleep(SHORT)
-        Send("{Del}")
+DoCommand(command, preserveCommand := false) {
+    global lastCommand, currentCommand
+    switch command {
+        case "dd":
+            Send("{Home}+{End}")
+            Sleep(SHORT)
+            Send("{Del}")
+        case "dw":
+            Send("^+{Right}")
+            Sleep(SHORT)
+            Send("{Del}")
+        case "diw":
+            Send("^{Left}^+{Right}")
+            Sleep(SHORT)
+            Send("{Del}")
+        case "db":
+            Send("^+{Left}")
+            Sleep(SHORT)
+            Send("{Del}")
+        case "dx":
+            Send("{Del}")
+        case "x":
+            Send("{Backspace}")
+        case "yw":
+            Send("^+{Right}")
+            Sleep(SHORT)
+            Send("^c")
+        case "yb":
+            Send("^+{Left}")
+            Sleep(SHORT)
+            Send("^c")
+        case "yy":
+            Send("{Home}+{End}")
+            Sleep(SHORT)
+            Send("^c")
+            Send("{Home}{End}")
+        case "p":
+            Send("^v")
+        case "u":
+            Send("^z")
+    }
+    if !preserveCommand {
+        lastCommand := command
+        currentCommand := ""
     }
 }
 
