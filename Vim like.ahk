@@ -239,7 +239,7 @@ DoMovement(key, skipDelete := false) {
             Send("{Backspace}")
             lastCommand := "x"
         } else if key = "{Right}" {
-            DoCommand("dx")
+            DoCommand("x")
         } else if key = "{End}" || key = "{Home}" || key = "^{End}" || key = "^{Home}"
                 || key = "{Down}" || key = "{Up}"{
             Send("+" key )
