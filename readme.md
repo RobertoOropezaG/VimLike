@@ -18,6 +18,15 @@ CapsLock + 9 → Go to end of line (Vim: $)
 CapsLock + g → Go to end of document (Vim: G)  
 CapsLock + t → Go to start of document (Vim: gg)
 
+CapsLock + m → Move cursor to next page = Page Down
+CapsLock + , → Move cursor to previous page = Page Down
+
+## MOUSE NAVIGATION:
+
+CapsLock + Enter + h/j/k/l → Move mouse in given direction (left/down/up/right)
+CapsLock + Enter + Space → Click
+CapsLock + Enter + b/m/,/w → Move mouse  in given direction with a larger step (left/down/up/right)
+
 ## REPEAT
 
 CapsLock + . → Repeat last command (Vim: .)

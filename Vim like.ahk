@@ -7,6 +7,7 @@ SendMode("Input")
 global SHORT := 30      ; Wait so two events don't collapse, eg. send home and end
 global WAIT := 600    ; Wait for user next character input, eg. press d WAIT 3 WAIT w
 global DOUBLE := 300    ; Wait for double press of caps lock
+global MOUSE_STEP := 20       ; mouse movement per capslock + enter + hjkl keys
 
 global currentCommand := ""
 global lastCommand := ""
@@ -94,14 +95,21 @@ CapsLock & 9::HandleKey("9")
 CapsLock & e::HandleKey("e")
 CapsLock & g::HandleKey("g")
 CapsLock & t::HandleKey("t")
+CapsLock & m::HandleMouseKey("m")
+CapsLock & ,::HandleMouseKey(",")
 
 ; === Movement ===
-CapsLock & h:: HandleKey("h")
-CapsLock & j:: HandleKey("j")
-CapsLock & k:: HandleKey("k")
-CapsLock & l:: HandleKey("l")
-CapsLock & w:: HandleKey("w")
-CapsLock & b:: HandleKey("b")
+CapsLock & h:: HandleMouseKey("h")
+CapsLock & j:: HandleMouseKey("j")
+CapsLock & k:: HandleMouseKey("k")
+CapsLock & l:: HandleMouseKey("l")
+CapsLock & Space:: HandleMouseKey(" ")
+
+CapsLock & Enter:: {
+    ; do nothing
+}
+CapsLock & w:: HandleMouseKey("w")
+CapsLock & b:: HandleMouseKey("b")
 
 CapsLock & SC01A::HandleKey("´") ; Actually "´" character
 CapsLock & {::HandleKey("{")
@@ -249,7 +257,8 @@ DoMovement(key, skipDelete := false) {
         }
     } else if currentCommand = "d" && skipDelete {
         if key = "{End}" || key = "{Home}" || key = "^{End}" || key = "^{Home}"
-                         || key = "{Down}" || key = "{Up}"{
+                         || key = "{Down}" || key = "{Up}"
+                         || key = "{PgUp}" || key = "{PgDn}" {
             Send("+" key )
             Sleep(SHORT)
             lastCommand := ""
@@ -280,6 +289,10 @@ HandleKey(key) {
                 DoMovement("^{End}")
             case "t": ; Map t to start of document
                 DoMovement("^{Home}")
+            case "m": ; Map m to Page Down
+                DoMovement("{PgDn}")
+            case ",": ; Map , to Page Up
+                DoMovement("{PgUp}")
             case "h": ; Map h to left
                 DoMovement("{Left}")
             case "j": ; Map j to down
@@ -375,5 +388,35 @@ DoCommand(command, preserveCommand := false) {
     lastCommand := command
 }
 
+HandleMouseKey(key) {
+    global MOUSE_STEP
+    if GetKeyState("Enter", "P") {
+        MouseGetPos(&x, &y)
+        switch key {
+            case "l":
+                MouseMove(x + MOUSE_STEP, y)
+            case "w":
+                MouseMove(x + MOUSE_STEP * 5, y)
+            case "h":
+                MouseMove(x - MOUSE_STEP, y)
+            case "b":
+                MouseMove(x - MOUSE_STEP * 5, y)
+            case "j":
+                MouseMove(x, y + MOUSE_STEP)
+            case "m":
+                MouseMove(x, y + MOUSE_STEP * 5)    
+            case "k":
+                MouseMove(x, y - MOUSE_STEP)
+            case ",":
+                MouseMove(x, y - MOUSE_STEP * 5)
+            case " ":
+                Click()
+        }
+    } else {
+        HandleKey(key)
+    }
+}
+
 ; Block all CapsLock combinations not otherwise handled
 CapsLock & *::return
+  
