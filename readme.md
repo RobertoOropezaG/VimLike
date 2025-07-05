@@ -25,6 +25,7 @@ CapsLock + , → Move cursor to previous page = Page Down
 
 CapsLock + Enter + h/j/k/l → Move mouse in given direction (left/down/up/right)
 CapsLock + Enter + Space → Click
+CapsLock + Enter + Alt → Right Click
 CapsLock + Enter + b/m/,/w → Move mouse  in given direction with a larger step (left/down/up/right)
 
 ## REPEAT

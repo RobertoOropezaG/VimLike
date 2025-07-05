@@ -74,7 +74,6 @@ CapsLock & 6:: HandleNumber("6")
 CapsLock & 7:: HandleNumber("7")
 CapsLock & 8:: HandleNumber("8")
 
-; uno dos tres cuatro cinco
 HandleNumber(number) {
     global currentNumber
     currentNumber := number
@@ -104,9 +103,12 @@ CapsLock & j:: HandleMouseKey("j")
 CapsLock & k:: HandleMouseKey("k")
 CapsLock & l:: HandleMouseKey("l")
 CapsLock & Space:: HandleMouseKey(" ")
+#HotIf GetKeyState("CapsLock", "P") && GetKeyState("Enter", "P")
+Alt::HandleMouseKey("Alt")
+#HotIf
 
 CapsLock & Enter:: {
-    ; do nothing
+    ;
 }
 CapsLock & w:: HandleMouseKey("w")
 CapsLock & b:: HandleMouseKey("b")
@@ -411,6 +413,8 @@ HandleMouseKey(key) {
                 MouseMove(x, y - MOUSE_STEP * 5)
             case " ":
                 Click()
+            case "Alt":
+                Click("Right")
         }
     } else {
         HandleKey(key)
