@@ -28,6 +28,11 @@ CapsLock + Enter + Space → Click
 CapsLock + Enter + Alt → Right Click
 CapsLock + Enter + b/m/,/w → Move mouse  in given direction with a larger step (left/down/up/right)
 
+CapsLock + Left/Down/Up/Right → Move mouse
+CapsLock + Shift + Left/Down/Up/Right → Move mouse faster
+CapsLock + Space → Click
+CapsLock + Alt → Right Click
+
 ## REPEAT
 
 CapsLock + . → Repeat last command (Vim: .)

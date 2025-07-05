@@ -102,13 +102,23 @@ CapsLock & h:: HandleMouseKey("h")
 CapsLock & j:: HandleMouseKey("j")
 CapsLock & k:: HandleMouseKey("k")
 CapsLock & l:: HandleMouseKey("l")
+
+CapsLock & Left:: HandleMouseKey("left")
+CapsLock & Down:: HandleMouseKey("down")
+CapsLock & Up:: HandleMouseKey("up")
+CapsLock & Right:: HandleMouseKey("right")
+
 CapsLock & Space:: HandleMouseKey(" ")
 #HotIf GetKeyState("CapsLock", "P") && GetKeyState("Enter", "P")
 Alt::HandleMouseKey("Alt")
 #HotIf
 
+#HotIf GetKeyState("CapsLock", "P")
+Alt::HandleMouseKey("Alt")
+#HotIf
+
 CapsLock & Enter:: {
-    ;
+    ; This ignores the enter key when pressed together with caps lock
 }
 CapsLock & w:: HandleMouseKey("w")
 CapsLock & b:: HandleMouseKey("b")
@@ -392,25 +402,34 @@ DoCommand(command, preserveCommand := false) {
 
 HandleMouseKey(key) {
     global MOUSE_STEP
+
     if GetKeyState("Enter", "P") {
-        MouseGetPos(&x, &y)
         switch key {
             case "l":
-                MouseMove(x + MOUSE_STEP, y)
+                DoMouseMove("right")
             case "w":
-                MouseMove(x + MOUSE_STEP * 5, y)
+                DoMouseMove("right", true)
             case "h":
-                MouseMove(x - MOUSE_STEP, y)
+                DoMouseMove("left")
             case "b":
-                MouseMove(x - MOUSE_STEP * 5, y)
+                DoMouseMove("left", true)
             case "j":
-                MouseMove(x, y + MOUSE_STEP)
+                DoMouseMove("down")
             case "m":
-                MouseMove(x, y + MOUSE_STEP * 5)    
+                DoMouseMove("down", true)
             case "k":
-                MouseMove(x, y - MOUSE_STEP)
+                DoMouseMove("up")
             case ",":
-                MouseMove(x, y - MOUSE_STEP * 5)
+                DoMouseMove("up", true)
+            case " ":
+                Click()
+            case "Alt":
+                Click("Right")
+        }
+    } else if key = "up" || key = "down" || key = "left" || key = "right" {
+        DoMouseMove(key, GetKeyState("LShift", "P"))
+    } else if key = "Alt" || key = " " {
+        switch key {
             case " ":
                 Click()
             case "Alt":
@@ -418,6 +437,22 @@ HandleMouseKey(key) {
         }
     } else {
         HandleKey(key)
+    }
+}
+
+DoMouseMove(direction, fast := false) {
+    global MOUSE_STEP
+    MouseGetPos(&x, &y)
+    fast_factor := (fast ? 5 : 1)
+    switch direction {
+        case "right":
+            MouseMove(x + fast_factor * MOUSE_STEP, y)
+        case "left":
+            MouseMove(x - fast_factor * MOUSE_STEP, y)
+        case "up":
+            MouseMove(x, y - fast_factor * MOUSE_STEP)
+        case "down":
+            MouseMove(x, y + fast_factor * MOUSE_STEP)
     }
 }
 
