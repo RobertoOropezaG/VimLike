@@ -11,9 +11,9 @@ XButton2::{
 
 ScrollWithAcceleration(direction)
 {
-    delay := 60   ; Initial delay in ms
+    delay := 70   ; Initial delay in ms
     step := 5     ; How much to reduce delay each loop
-    minDelay := 20 ; Fastest speed
+    minDelay := 25 ; Fastest speed
 
     btn := direction = "up" ? "XButton1" : "XButton2"
     wheel := direction = "up" ? "{WheelUp}" : "{WheelDown}"
