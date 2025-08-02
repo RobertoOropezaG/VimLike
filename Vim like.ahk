@@ -260,12 +260,27 @@ DoMovement(key, skipDelete := false) {
             lastCommand := "x"
         } else if key = "{Right}" {
             DoCommand("x")
-        } else if key = "{End}" || key = "{Home}" || key = "^{End}" || key = "^{Home}"
-                || key = "{Down}" || key = "{Up}"{
+        } else if key = "{End}" || key = "{Home}" || key = "^{End}" || key = "^{Home}" {
             Send("+" key )
             Sleep(SHORT)
             Send("{Delete}")
             lastCommand := ""
+        } else if key = "{Down}" {
+            Send("{Down}")
+            Send("{End}")
+            Send("+{Home}")
+            Send("{BackSpace}")
+            Send("{End}")
+            Send("+{Home}")
+            Send("{BackSpace}")
+        } else if key = "{Up}" {
+            Send("{Up}")
+            Send("{End}")
+            Send("+{Home}")
+            Send("{BackSpace}")
+            Send("{End}")
+            Send("+{Home}")
+            Send("{Del}")
         }
     } else if currentCommand = "d" && skipDelete {
         if key = "{End}" || key = "{Home}" || key = "^{End}" || key = "^{Home}"
